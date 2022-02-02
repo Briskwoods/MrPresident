@@ -17,12 +17,13 @@ public class MoveCamera : MonoBehaviour
     public void RotateCamera()
     {
         transform.DORotateQuaternion(CameraTarget.rotation, 1f).OnComplete(EnableCanvas);
+
     }
 
 
     public void EnableCanvas()
     {
-        CodeManager.Instance.ScreenCanvas.SetActive(true);
+        CodeManager.Instance.ReportersController_.AllSit();
         CodeManager.Instance.WorldCanvasController.CheckCounter();
     }
 }

@@ -13,6 +13,7 @@ public class CodeManager : MonoBehaviour
     public ScreenSpaceCanvasController ScreenCanvasController;
     public GameObject WorldCanvas;
     public WorldSpaceCanvasController WorldCanvasController;
+    public ReportersController ReportersController_;
 
     private void Awake()
     {
