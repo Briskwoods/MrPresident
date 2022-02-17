@@ -9,11 +9,10 @@ public class CodeManager : MonoBehaviour
 
     public MoveCamera MoveCamera_;
     public PresidentController PresidentController_;
-    public GameObject ScreenCanvas;
     public ScreenSpaceCanvasController ScreenCanvasController;
-    public GameObject WorldCanvas;
     public WorldSpaceCanvasController WorldCanvasController;
-    public ReportersController ReportersController_;
+    //public ReportersController ReportersController_;
+    public GameManager GameManager_;
 
     private void Awake()
     {

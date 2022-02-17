@@ -6,7 +6,7 @@ public class OnOpen : MonoBehaviour
 {
    public void OnOpenDoor()
     {
-        CodeManager.Instance.ReportersController_.AllStand();
+        //CodeManager.Instance.ReportersController_.AllStand();
         StartCoroutine(PauseBeforeWalkIn());
     }
 
