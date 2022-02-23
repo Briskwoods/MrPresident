@@ -61,7 +61,8 @@ public class CrowdController : MonoBehaviour
                                     individual.m_self.SetTrigger("Win");
                                     break;
                                 case false:
-                                    individual.m_self.SetTrigger("Lose");
+                                    individual.m_self.SetTrigger("Throw");
+                                    //individual.m_self.SetTrigger("Lose");
                                     break;
                             }
                         }
@@ -81,7 +82,8 @@ public class CrowdController : MonoBehaviour
                                     individual.m_self.SetTrigger("Win");
                                     break;
                                 case false:
-                                    individual.m_self.SetTrigger("Lose");
+                                    individual.m_self.SetTrigger("Throw");
+                                    //individual.m_self.SetTrigger("Lose");
                                     break;
                             }
                         }
@@ -99,7 +101,8 @@ public class CrowdController : MonoBehaviour
                             switch (individual.m_isRepublican)
                             {
                                 case true:
-                                    individual.m_self.SetTrigger("Lose");
+                                    individual.m_self.SetTrigger("Throw");
+                                    //individual.m_self.SetTrigger("Lose");
                                     break;
                                 case false:
                                     individual.m_self.SetTrigger("Win");
@@ -122,7 +125,8 @@ public class CrowdController : MonoBehaviour
                                     individual.m_self.SetTrigger("Win");
                                     break;
                                 case false:
-                                    individual.m_self.SetTrigger("Lose");
+                                    individual.m_self.SetTrigger("Throw");
+                                    //individual.m_self.SetTrigger("Lose");
                                     break;
                             }
                         }

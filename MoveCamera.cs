@@ -12,13 +12,13 @@ public class MoveCamera : MonoBehaviour
     [ContextMenu("After Walk In")]
     public void AfterPresidentWalkIn()
     {
-        transform.DOMove(CameraTarget.position, 1.5f).OnComplete(RotateCamera);
+        transform.DOMove(CameraTarget.position, 1.5f);
+        Invoke("RotateCamera", 1f);
     }
 
     public void RotateCamera()
     {
         transform.DORotateQuaternion(CameraTarget.rotation, 1f).OnComplete(EnableCanvas);
-
     }
 
     public void EnableCanvas()
