@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class StaffCharacter : MonoBehaviour
 {
-    public GameObject MaleStaff;
-    public GameObject FemaleStaff;
+    public GameObject[] MaleStaff;
+    public GameObject[] FemaleStaff;
+    public int WhichStaff;
     Animator ActiveAnimator;
     public CharacterBehaviourManager TheChar;
     bool Initialized;
@@ -17,6 +18,7 @@ public class StaffCharacter : MonoBehaviour
     public bool Ready;
     public bool OverrideGender;
     public bool isMale;
+    public DialogMan TheDialog;
     // Start is called before the first frame update
     void Start()
     {
@@ -40,14 +42,14 @@ public class StaffCharacter : MonoBehaviour
 
                 if (isMale)
                 {
-                    ActiveAnimator = MaleStaff.GetComponent<Animator>();
+                    ActiveAnimator = MaleStaff[WhichStaff].GetComponent<Animator>();
                 }
                 else
                 {
-                    ActiveAnimator = FemaleStaff.GetComponent<Animator>();
+                    ActiveAnimator = FemaleStaff[WhichStaff].GetComponent<Animator>();
                 }
-                MaleStaff.SetActive(isMale);
-                FemaleStaff.SetActive(!isMale);
+                MaleStaff[WhichStaff].SetActive(isMale);
+                FemaleStaff[WhichStaff].SetActive(!isMale);
                 Initialized = true;
                 TheChar.SetAnimation("Idle");
 
@@ -61,15 +63,22 @@ public class StaffCharacter : MonoBehaviour
             if (Vector3.Distance( ModelHolder.position, Target.position) < 0.01f)
             {
                 ModelHolder.localEulerAngles = Vector3.zero;
-               
-                if (isMale)
+                if (TheDialog.TheStaff == this)
                 {
-                    PlayAnimation("Talking");
+                    if (isMale)
+                    {
+                        PlayAnimation("Talking");
+                    }
+                    else
+                    {
+                        PlayAnimation("TalkingFemale");
+                    }
                 }
                 else
                 {
-                    PlayAnimation("TalkingFemale");
+                    PlayAnimation("Idle");
                 }
+               
                 Ready = true;
             }
             else
@@ -100,6 +109,7 @@ public class StaffCharacter : MonoBehaviour
     }
     public void Enter()
     {
+        TheDialog.TheStaff = this;
         Target = TargetMovePos;
         ModelHolder.localEulerAngles = Target.localEulerAngles;
     }

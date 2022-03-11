@@ -14,7 +14,7 @@ public class NoteController : MonoBehaviour
         {
             case true:
                 collision.collider.gameObject.GetComponentInParent<Rigidbody>().isKinematic = true;
-                collision.collider.gameObject.transform.parent.localScale *=3;
+                //collision.collider.gameObject.transform.parent.localScale *=2;
                 startBurst.Play();
                 DartMinigameController_.currentScore += 1;
                 DartMinigameController_.CheckWin();

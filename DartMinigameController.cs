@@ -21,10 +21,19 @@ public class DartMinigameController : MonoBehaviour
                 Score.DOValue(currentScore, 0.5f);
                 Debug.Log("Win!");
                 ControlManager.Instance.EconomyManager_Script.IncreaseEconomy(50, MoneySpawnPoint.position);
+
+                Invoke("NewLevel", 3f);
                 break;
             case false:
                 Score.DOValue(currentScore, 0.5f);
                 break;
         }
     }
+
+    public void NewLevel()
+    {
+        ControlManager.Instance.LevelManager_Script.NextLevel();
+    }
 }
+
+

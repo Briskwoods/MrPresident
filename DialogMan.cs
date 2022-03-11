@@ -13,6 +13,10 @@ public class DialogMan : MonoBehaviour
     public Transform SwipeTrans;
     public Image SwipeImg;
     public TMP_Text SwipeText;
+    public GameObject MatchHolder;
+    public Transform MatchTrans;
+    public Image MatchImg;
+    public TMP_Text MatchText;
     public Dialog[] TheDialogLib;
     public GameObject DialogHolder;
     public Dialog ActiveDialog;
@@ -22,6 +26,13 @@ public class DialogMan : MonoBehaviour
     public GameObject[] NextObjs;
     public GameObject Holder;
     public bool GameOver;
+    public GameObject TapToContinueHolder;
+    public GameObject ChoicesHolder;
+    public TMP_Text DialogText;
+    string ActiveQuiz;
+    public StaffCharacter TheStaff;
+    public AudioClip[] MaleGreeting;
+    public AudioClip[] FemaleGreeting;
     // Start is called before the first frame update
     void Start()
     {
@@ -37,11 +48,26 @@ public class DialogMan : MonoBehaviour
             return;
 
         }
+        if (Holder.activeSelf == false)
+        {
+            GetComponent<AudioSource>().Stop();
+        }
+      
         if (ActiveDialog != null) {
             DialogBubble.transform.position = Camera.main.WorldToScreenPoint(DialogPos.position);
             if (ActiveDialog.ActiveStaff.Length>0)
             {
+                bool Deactivated = Holder.activeSelf;
                 Holder.SetActive(ActiveDialog.ActiveStaff[0].Ready);
+                if (Holder.activeSelf&&!Deactivated)
+                {
+                    if (!string.IsNullOrEmpty(ActiveQuiz))
+                    {
+                        DialogText.text = ActiveQuiz;
+                        ActiveQuiz = "";
+                    }
+                    AnimateText();
+                }
             }
             else
             {
@@ -52,6 +78,7 @@ public class DialogMan : MonoBehaviour
         else
         {
             Holder.SetActive(false);
+            
         }
         if (TheChar.Initialized)
         {
@@ -61,6 +88,11 @@ public class DialogMan : MonoBehaviour
             }
         }
     }
+    public void PlayAudio(AudioClip _Clip)
+    {
+        GetComponent<AudioSource>().clip = _Clip;
+        GetComponent<AudioSource>().Play();
+    }
     public void GetDialog(bool IsSub,int WhichSub)
     {
         if (ActiveDialog != null)
@@ -68,6 +100,10 @@ public class DialogMan : MonoBehaviour
             if (ActiveDialog.ActivateObj != null)
             {
                 ActiveDialog.ActivateObj.SetActive(true);
+            }
+            if (ActiveDialog.DisableObj != null)
+            {
+                ActiveDialog.DisableObj.SetActive(false);
             }
         }
         if (IsSub)
@@ -85,6 +121,7 @@ public class DialogMan : MonoBehaviour
         }
         ChoiceHolder.SetActive(ActiveDialog.IsChoiceQuiz);
         SwipeHolder.SetActive(ActiveDialog.IsSwipeQuiz);
+        MatchHolder.SetActive(ActiveDialog.IsMatchQuiz);
         if (ActiveDialog.IsGreeting)
         {
             string Temp = ActiveDialog.TheQuestion;
@@ -98,7 +135,7 @@ public class DialogMan : MonoBehaviour
             }
             ActiveDialog.TheQuestion = Temp;
         }
-        DialogBubble.GetComponentInChildren<TMP_Text>().text = ActiveDialog.TheQuestion;
+        DialogText.text = ActiveDialog.TheQuestion;
         if (ActiveDialog.IsChoiceQuiz)
         {
             TheChoices[0].ChoiceText.SetText(ActiveDialog.TheChoices[0]);
@@ -110,6 +147,12 @@ public class DialogMan : MonoBehaviour
         {
             SwipeText.text = ActiveDialog.SwipeText;
             SwipeImg.sprite = ActiveDialog.SwipeImg;
+            NextObj.SetActive(false);
+        }
+        else if (ActiveDialog.IsMatchQuiz)
+        {
+           // MatchText.text = ActiveDialog.SwipeText;
+            //MatchImg.sprite = ActiveDialog.SwipeImg;
             NextObj.SetActive(false);
         }
         else
@@ -133,7 +176,7 @@ public class DialogMan : MonoBehaviour
         {
             if (i == 0)
             {
-                Camera.main.GetComponent<Cam>().LookAtTarget = ActiveDialog.ActiveStaff[i].ModelHolder;
+                Camera.main.GetComponentInParent<Cam>().LookAtTarget = ActiveDialog.ActiveStaff[i].ModelHolder;
 
             }
             ActiveDialog.ActiveStaff[i].Enter();
@@ -142,17 +185,110 @@ public class DialogMan : MonoBehaviour
         {
             ActiveDialog.LeavingStaff[i].Exit();
         }
-    }
-    public void AnswerChoice(int Which)
-    {
-        if (ActiveDialog.SubDialog[Which] == null)
+        if (Holder.activeSelf)
         {
-            ActiveDialogInt += 1;
-            GetDialog(false,0);
+            //AnimateText();
+        }
+        ChoicesHolder.SetActive(false);
+        TapToContinueHolder.SetActive(false);
+        TapToContinue();
+    }
+    public void AnimateText()
+    {
+        DialogBubble.GetComponentInChildren<AnimatedTyping>().Animate();
+        float TheLenght = 0;
+        if (ActiveDialog.IsGreeting&& ActiveDialog.WhichSplit<=1|| ActiveDialog.IsGreeting&&ActiveDialog.TheQuestionSplit.Length==0)
+        {
+            if (TheChar.isMale)
+            {
+                if (TheStaff.isMale)
+                {
+                    PlayAudio(MaleGreeting[0]);
+                    TheLenght = MaleGreeting[0].length;
+                }
+                else
+                {
+                    PlayAudio(FemaleGreeting[0]);
+                    TheLenght = MaleGreeting[0].length;
+                }
+            }
+            else
+            {
+                if (TheStaff.isMale)
+                {
+                    PlayAudio(MaleGreeting[1]);
+                    TheLenght = MaleGreeting[0].length;
+                }
+                else
+                {
+                    PlayAudio(FemaleGreeting[1]);
+                    TheLenght = MaleGreeting[0].length;
+                }
+            }
+        }
+        StartCoroutine(PlayAudioDelayed(TheLenght));
+        
+    }
+    IEnumerator PlayAudioDelayed(float TheT)
+    {
+        yield return new WaitForSeconds(TheT);
+        if (TheStaff.isMale)
+        {
+            if (ActiveDialog.TheQuestionSplit.Length == 0)
+            {
+                PlayAudio(ActiveDialog.TheAudiosMale[0]);
+            }
+            else
+            {
+                PlayAudio(ActiveDialog.TheAudiosMale[ActiveDialog.WhichSplit - 1]);
+
+            }
         }
         else
         {
-            GetDialog(true,Which);
+            if (ActiveDialog.TheQuestionSplit.Length == 0)
+            {
+                PlayAudio(ActiveDialog.TheAudiosFemale[0]);
+            }
+            else
+            {
+                PlayAudio(ActiveDialog.TheAudiosFemale[ActiveDialog.WhichSplit - 1]);
+
+            }
+        }
+    }
+    public void AnswerChoice(int Which)
+    {
+        float TheLenght = 0.1f;
+        if (ActiveDialog.RepliesAudiosFemale.Length > 0)
+        {
+            if (TheChar.isMale)
+            {
+                PlayAudio(ActiveDialog.RepliesAudiosMale[Which]);
+                TheLenght = ActiveDialog.RepliesAudiosMale[Which].length;
+            }
+            else
+            {
+                PlayAudio(ActiveDialog.RepliesAudiosFemale[Which]);
+                TheLenght = ActiveDialog.RepliesAudiosFemale[Which].length;
+            }
+        }
+        StartCoroutine(AnswerDelayed(TheLenght, Which));
+       
+
+    }
+    IEnumerator AnswerDelayed(float TheT,int Which)
+    {
+        ChoiceHolder.SetActive(false);
+        yield return new WaitForSeconds(TheT);
+        if (ActiveDialog.SubDialog[Which] == null)
+        {
+            ActiveDialogInt += 1;
+            GetDialog(false, 0);
+        }
+        else
+        {
+            GetDialog(true, Which);
 
         }
     }
@@ -171,8 +307,56 @@ public class DialogMan : MonoBehaviour
     }
     public void NextStep()
     {
-       
-        ActiveDialogInt += 1;
-        GetDialog(false, 0);
+        float TheLenght = 0.1f;
+        if (ActiveDialog.RepliesAudiosMale.Length > 0)
+        {
+            if (TheChar.isMale)
+            {
+                PlayAudio(ActiveDialog.RepliesAudiosMale[0]);
+                TheLenght = ActiveDialog.RepliesAudiosMale[0].length;
+            }
+            else
+            {
+                PlayAudio(ActiveDialog.RepliesAudiosFemale[0]);
+                TheLenght = ActiveDialog.RepliesAudiosFemale[0].length;
+            }
+        }
+        //ActiveDialogInt += 1;
+        StartCoroutine(AnswerDelayed(TheLenght, 0));
+        //GetDialog(false, 0);
     }
+    public void TapToContinue()
+    {
+        TapToContinueHolder.SetActive(false);
+        string Temp = ActiveDialog.GetSplit();
+        if (ActiveDialog.TheQuestionSplit.Length == 0&&
+            ActiveDialog.WhichSplit==1)
+        {
+            ActiveDialog.WhichSplit += 1;
+           Temp = ActiveDialog.TheQuestion;
+        }
+        if (string.IsNullOrEmpty(Temp))
+        {
+            ChoicesHolder.SetActive(true);
+            return;
+        }
+        if (ActiveDialog.IsGreeting&&ActiveDialog.WhichSplit==1)
+        {
+            if (TheChar.isMale)
+            {
+                Temp = "Hello Mr " + Temp;
+            }
+            else
+            {
+                Temp = "Hello Madam " + Temp;
+            }
+        }
+        DialogText.text =Temp;
+        if (Holder.activeSelf)
+        {
+            ActiveQuiz = Temp;
+            AnimateText();
+        }
+    }
+    
 }
